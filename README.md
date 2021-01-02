@@ -1,4 +1,4 @@
-# Dataset in SAP format
+# SAP format dataset
 ## Fields of interest
 ### KNA1
 - KUNNR primary key
@@ -36,4 +36,5 @@
     PRAGMA foreign_keys = ON;
     CREATE TABLE readme(line);
     .import README.md readme
-    create view vread(row, line) as select rowid, * from readme;
+    CREATE VIEW vread(row, line) as select rowid, line from readme;
+    CREATE VIEW vtabs as select row, substr(line, 5) as tab from vread where line like '###%';
