@@ -32,7 +32,7 @@
 - PMATN
 - MEINS
 - primary key(VBELN, POSNR)
-## Create SQLite initization script
+## Create SQLite initialization script from this README.md
     CREATE TABLE readme(line);
     .separator \t
     .import README.md readme
