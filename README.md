@@ -66,34 +66,34 @@
     select substr(line, 5) from readme where rowid > (select rowid from readme where line like '### Create SAP%' limit 1);
     .read initdb.sqlite
 ### Create SAP tables
-CREATE VIEW if not exists VREAD(row, line) as select rowid, line from readme;
-CREATE VIEW if not exists VDATA as select * from vread
-  where row between
-    (select row+1 from vread where line like '%## Schema%' limit 1) and
-    (select row-1 from vread where line like '%## Create%' limit 1);
-CREATE VIEW if not exists VSQL as select
-  case substr(vdata.line, 1, 4)
-    when '### ' then
-      case substr(vdata_next.line, 1, 2)
-        when '- '
-          then 'CREATE TABLE if not exists' || substr(vdata.line, 4) || '('
-        else 'REPLACE INTO' || substr(vdata.line, 4) || ' values '
-        end
-    when '## T' then ''
-    when '    ' then
-      case substr(vdata_next.line, 1, 2)
-        when '##' then
-          "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
-        else "('" || replace(substr(vdata.line, 5), '|', "', '") || "'),"
+    CREATE VIEW if not exists VREAD(row, line) as select rowid, line from readme;
+    CREATE VIEW if not exists VDATA as select * from vread
+      where row between
+        (select row+1 from vread where line like '%## Schema%' limit 1) and
+        (select row-1 from vread where line like '%## Create%' limit 1);
+    CREATE VIEW if not exists VSQL as select
+      case substr(vdata.line, 1, 4)
+        when '### ' then
+          case substr(vdata_next.line, 1, 2)
+            when '- '
+              then 'CREATE TABLE if not exists' || substr(vdata.line, 4) || '('
+            else 'REPLACE INTO' || substr(vdata.line, 4) || ' values '
+            end
+        when '## T' then ''
+        when '    ' then
+          case substr(vdata_next.line, 1, 2)
+            when '##' then
+              "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
+            else "('" || replace(substr(vdata.line, 5), '|', "', '") || "'),"
+          end
+        else
+          case substr(vdata_next.line, 1, 2)
+            when '- ' then substr(vdata.line, 3)|| ','
+            else substr(vdata.line, 3)|| ');'
+          end
       end
-    else
-      case substr(vdata_next.line, 1, 2)
-        when '- ' then substr(vdata.line, 3)|| ','
-        else substr(vdata.line, 3)|| ');'
-      end
-  end
-  from vdata left join vdata as vdata_next on vdata_next.row = vdata.row+1;
-.headers off
-.once saptabs.sql
-select * from vsql;
-.read saptabs.sql
+      from vdata left join vdata as vdata_next on vdata_next.row = vdata.row+1;
+    .headers off
+    .once saptabs.sql
+    select * from vsql;
+    .read saptabs.sql
