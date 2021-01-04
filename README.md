@@ -27,6 +27,7 @@
 - LVORM
 - MTART
 - MEINS
+- URL
 ### MAKT
 - MATNR references MARA
 - SPRAS references T002
@@ -83,6 +84,8 @@
         when '    ' then
           case substr(vdata_next.line, 1, 2)
             when '##' then
+              "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
+            when '' then
               "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
             else "('" || replace(substr(vdata.line, 5), '|', "', '") || "'),"
           end
