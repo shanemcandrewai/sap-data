@@ -66,24 +66,26 @@
     select substr(line, 5) from readme where rowid > (select rowid from readme where line like '### Create SAP%' limit 1);
     .read initdb.sqlite
 ### Create SAP tables
-    CREATE VIEW if not exists vread(row, line) as select rowid, line from readme;
-    CREATE VIEW if not exists vsch_start as select row+1 as row from vread
-      where line like '%## Schema%' limit 1;
-    CREATE VIEW if not exists vsch_end as select row-1 as row from vread
-      where row > (select * from vsch_start) and line like '## %' limit 1;
-    CREATE VIEW if not exists vsch as select * from vread
-      where row between (select row from vsch_start) and
-                        (select row from vsch_end);
-    CREATE VIEW if not exists vsql as select
-      case substr(vsch.line, 1, 3)
-        when '###' then 'CREATE TABLE if not exists' || substr(vsch.line, 4) || '('
+    CREATE VIEW if not exists VREAD(row, line) as select rowid, line from readme;
+    CREATE VIEW if not exists VDATA as select * from vread
+      where row between
+        (select row+1 from vread where line like '%## Schema%' limit 1) and
+        (select row-1 from vread where line like '%## Create%' limit 1);
+    CREATE VIEW if not exists VSQL as select
+      case substr(vdata.line, 1, 4)
+        when '### ' 
+          case substr(vdata_next.line, 1, 2)
+            when '- ' then 'CREATE TABLE if not exists' || substr(vdata.line, 4) || '('
+            else 'INSERT INTO' || substr(vdata.line, 4) || ' select'
         else
-          case substr(vsch_next.line, 1, 1)
-            when '-' then substr(vsch.line, 3)|| ','
+          case substr(vdata_next.line, 1, 2)
+            when '- ' then substr(vsch.line, 3)|| ','
+            when '  ' then substr(vsch.line, 3)|| ','
             else substr(vsch.line, 3)|| ');'
           end
       end
-      as sql from vsch left join vsch as vsch_next on vsch_next.row = vsch.row+1;
+      from vdata left join vdata as vdata_next on vdata_next.row = vdata.row+1;
+
     .headers off
     .once saptabs.sql
     select * from vsql;
