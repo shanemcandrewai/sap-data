@@ -2,9 +2,12 @@
 ## Schema
 ### T002
 - SPRAS primary key
+### T005
+- LAND1 primary key
+- XEGLD
 ### KNA1
 - KUNNR primary key
-- LAND1
+- LAND1 references T005
 - NAME1
 - SORTL
 - ERDAT
@@ -42,6 +45,13 @@
 ## Table contents
 ### T002
     EN
+### T005
+    CH|
+    DE|X
+    FR|X
+    IT|X
+    UK|X
+    US|
 ### KNA1
     0000500000|IT|Guccion Gucci S.p.A|gucci50123|20100201|sandrag
     0000500001|IT|Prada S.p.A|prada20135|20110303|accardia
