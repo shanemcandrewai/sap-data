@@ -76,23 +76,18 @@
     CREATE VIEW if not exists VSQL as select
       case substr(vdata.line, 1, 4)
         when '### ' then
-          case substr(vdata_next.line, 1, 2)
-            when '- '
-              then 'CREATE TABLE if not exists' || substr(vdata.line, 4) || '('
-            else 'REPLACE INTO' || substr(vdata.line, 4) || ' values '
-            end
+          iif(substr(vdata_next.line, 1, 2) = '- ',
+            'CREATE TABLE if not exists' || substr(vdata.line, 4) || '(' ,
+            'REPLACE INTO' || substr(vdata.line, 4) || ' values ')
         when '## T' then ''
         when '    ' then
-          case substr(vdata_next.line, 1, 2)
-            when '  ' then
-              "('" || replace(substr(vdata.line, 5), '|', "', '") || "'),"
-            else "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
-          end
+          iif(substr(vdata_next.line, 1, 2) = '  ',
+            "('" || replace(substr(vdata.line, 5), '|', "', '") || "'),",
+            "('" || replace(substr(vdata.line, 5), '|', "', '") || "');")
         else
-          case substr(vdata_next.line, 1, 2)
-            when '- ' then substr(vdata.line, 3)|| ','
-            else substr(vdata.line, 3)|| ');'
-          end
+          iif(substr(vdata_next.line, 1, 2) = '- ',
+            substr(vdata.line, 3)|| ',',
+            substr(vdata.line, 3)|| ');')
       end
       from vdata left join vdata as vdata_next on vdata_next.row = vdata.row+1;
     .headers off
