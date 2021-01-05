@@ -48,8 +48,8 @@
     0000500002|UK|River Island Clothing co. Limited|rive636095|20100305|smithds
     0000500003|UK|Boohoo Group plc|boohoo7297|20100115|sandrag
 ### VBAK
-    0015000000|20100215|15:15:01|sandrag|20100215|OR|SDNL|000050001
-    0015000001|20100216|12:14:44|sandrag|20100216|OR|SDNL|000050002
+    0015000000|20100215|15:15:01|sandrag|20100215|OR|SDNL|0000500001
+    0015000001|20100216|12:14:44|sandrag|20100216|OR|SDNL|0000500002
 ### MARA
     000000000400000000|20100901|gallage|20180106|simonr||BAG1|EA|https://upload.wikimedia.org/wikipedia/commons/d/d5/Laptop_bags_luxury_diManolo_%2812_of_15%29.jpg
     000000000400000001|20100901|gallage|20190116|simonr||BAG1|EA|https://pxhere.com/en/photo/1430309
@@ -65,10 +65,12 @@
     CREATE TABLE readme(line);
     .separator \t
     .import README.md readme
+    .headers off
     .once initdb.sqlite
     select substr(line, 5) from readme where rowid > (select rowid from readme where line like '### Create and%' limit 1);
     .read initdb.sqlite
 ### Create and populate SAP tables
+    PRAGMA foreign_keys = ON;
     CREATE VIEW if not exists VREAD(row, line) as select rowid, line from readme;
     CREATE VIEW if not exists VDATA as select * from vread
       where row between
