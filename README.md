@@ -32,6 +32,7 @@
 - MATNR references MARA
 - SPRAS references T002
 - MAKTX
+- primary key(MATNR, SPRAS)
 ### VBAP
 - VBELN references VBAK
 - POSNR
@@ -59,15 +60,15 @@
     0015000000|000010|000000000400000000|EA
     0015000000|000020|000000000400000001|EA
     0015000001|000010|000000000400000001|EA
-## Create SQLite initialization script from this README.md
+## Create and execute SQLite initialization script from this README.md
     DROP TABLE if exists readme;
     CREATE TABLE readme(line);
     .separator \t
     .import README.md readme
     .once initdb.sqlite
-    select substr(line, 5) from readme where rowid > (select rowid from readme where line like '### Create SAP%' limit 1);
+    select substr(line, 5) from readme where rowid > (select rowid from readme where line like '### Create and%' limit 1);
     .read initdb.sqlite
-### Create SAP tables
+### Create and populate SAP tables
     CREATE VIEW if not exists VREAD(row, line) as select rowid, line from readme;
     CREATE VIEW if not exists VDATA as select * from vread
       where row between
