@@ -60,7 +60,8 @@
     0015000000|000020|000000000400000001|EA
     0015000001|000010|000000000400000001|EA
 ## Create SQLite initialization script from this README.md
-    CREATE TABLE if not exists readme(line);
+    DROP TABLE if exists readme;
+    CREATE TABLE readme(line);
     .separator \t
     .import README.md readme
     .once initdb.sqlite
@@ -83,11 +84,9 @@
         when '## T' then ''
         when '    ' then
           case substr(vdata_next.line, 1, 2)
-            when '##' then
-              "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
-            when '' then
-              "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
-            else "('" || replace(substr(vdata.line, 5), '|', "', '") || "'),"
+            when '  ' then
+              "('" || replace(substr(vdata.line, 5), '|', "', '") || "'),"
+            else "('" || replace(substr(vdata.line, 5), '|', "', '") || "');"
           end
         else
           case substr(vdata_next.line, 1, 2)
