@@ -183,11 +183,14 @@
       review_creation_date,
       review_answer_timestamp
     );
-    create view vpr as select * from opr left join opt on
+    CREATE VIEW VPR as select * from opr left join opt on
       opr.product_category_name = opt.product_category_name;
-    create view vall as select * from oor, oit, ocu, ose, vpr on
+    CREATE VIEW VPV as select oor.order_id, sum(payment_value) from oor
+      left join opa on oor.order_id = opa.order_id group by opa.order_id;
+    CREATE VIEW VALL as select * from oor, oit, ocu, ose, vpr, vpv on
       oor.order_id = oit.order_id and oor.customer_id = ocu.customer_id and
-      oit.product_id = vpr.product_id and oit.seller_id = ose.seller_id;
+      oit.product_id = vpr.product_id and oit.seller_id = ose.seller_id and
+      oor.order_id = vpv.order_id;
 
     .import olist/olist_customers_dataset.csv ocu
     .import olist/olist_products_dataset.csv opr
