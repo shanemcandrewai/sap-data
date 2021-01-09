@@ -103,6 +103,27 @@
             substr(vdata.line, 3)|| ');')
       end
       from vdata left join vdata as vdata_next on vdata_next.row = vdata.row+1;
+
+    .sep ,
+    DROP TABLE if exists OCU;
+    .import olist/olist_customers_dataset.csv ocu
+    DROP TABLE if exists OPR;
+    .import olist/olist_products_dataset.csv opr
+    DROP TABLE if exists OPT;
+    .import olist/product_category_name_translation.csv opt
+    DROP TABLE if exists OSE;
+    .import olist/olist_sellers_dataset.csv ose
+    DROP TABLE if exists OGL;
+    .import olist/olist_geolocation_dataset.csv ogl
+    DROP TABLE if exists OOR;
+    .import olist/olist_orders_dataset.csv oor
+    DROP TABLE if exists OIT;
+    .import olist/olist_order_items_dataset.csv oit
+    DROP TABLE if exists OPA;
+    .import olist/olist_order_payments_dataset.csv opa
+    DROP TABLE if exists ORE;
+    .import olist/olist_order_reviews_dataset.csv ore
+
     .headers off
     .once saptabs.sql
     select * from vsql;
