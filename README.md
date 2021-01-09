@@ -70,6 +70,8 @@
     0015000000|000010|000000000400000000|EA
     0015000000|000020|000000000400000001|EA
     0015000001|000010|000000000400000001|EA
+## Download and decompress Olist dataset
+[Brazilian E-Commerce Public Dataset by Olist, version 7](https://www.kaggle.com/olistbr/brazilian-ecommerce/)
 ## Create and execute SQLite initialization script from this README.md
     DROP TABLE if exists readme;
     CREATE TABLE readme(line);
@@ -191,6 +193,10 @@
       oor.order_id = oit.order_id and oor.customer_id = ocu.customer_id and
       oit.product_id = vpr.product_id and oit.seller_id = ose.seller_id and
       oor.order_id = vpv.order_id;
+    CREATE VIEW VMON as select substr(order_purchase_timestamp, 1, 7) as mon,
+      ifnull(product_category_name_english, product_category_name || '__') as pcn,
+      order_status as os, round(sum(price),2) as pr, count(*) as cnt from vall
+      group by mon, pcn, os order by pcn, mon, os;
 
     .import olist/olist_customers_dataset.csv ocu
     .import olist/olist_products_dataset.csv opr
@@ -201,3 +207,12 @@
     .import olist/olist_order_items_dataset.csv oit
     .import olist/olist_order_payments_dataset.csv opa
     .import olist/olist_order_reviews_dataset.csv ore
+    delete from ore where rowid = 1;
+    delete from opa where rowid = 1;
+    delete from oit where rowid = 1;
+    delete from oor where rowid = 1;
+    delete from ogl where rowid = 1;
+    delete from ose where rowid = 1;
+    delete from opt where rowid = 1;
+    delete from opr where rowid = 1;
+    delete from ocu where rowid = 1;
