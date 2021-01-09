@@ -104,27 +104,98 @@
       end
       from vdata left join vdata as vdata_next on vdata_next.row = vdata.row+1;
 
-    .sep ,
-    DROP TABLE if exists OCU;
-    .import olist/olist_customers_dataset.csv ocu
-    DROP TABLE if exists OPR;
-    .import olist/olist_products_dataset.csv opr
-    DROP TABLE if exists OPT;
-    .import olist/product_category_name_translation.csv opt
-    DROP TABLE if exists OSE;
-    .import olist/olist_sellers_dataset.csv ose
-    DROP TABLE if exists OGL;
-    .import olist/olist_geolocation_dataset.csv ogl
-    DROP TABLE if exists OOR;
-    .import olist/olist_orders_dataset.csv oor
-    DROP TABLE if exists OIT;
-    .import olist/olist_order_items_dataset.csv oit
-    DROP TABLE if exists OPA;
-    .import olist/olist_order_payments_dataset.csv opa
-    DROP TABLE if exists ORE;
-    .import olist/olist_order_reviews_dataset.csv ore
-
     .headers off
     .once saptabs.sql
     select * from vsql;
     .read saptabs.sql
+
+    PRAGMA foreign_keys = ON;
+    .sep ,
+    CREATE TABLE if not exists ocu(
+      customer_id text primary key,
+      customer_unique_id,
+      customer_zip_code_prefix,
+      customer_city,
+      customer_state
+    );
+    CREATE TABLE if not exists opt(
+      product_category_name text primary key,
+      product_category_name_english
+    );
+    CREATE TABLE if not exists opr(
+      product_id text primary key,
+      product_category_name,
+      product_name_lenght,
+      product_description_lenght,
+      product_photos_qty,
+      product_weight_g,
+      product_length_cm,
+      product_height_cm,
+      product_width_cm
+    );
+    CREATE TABLE if not exists ose(
+      seller_id text primary key,
+      seller_zip_code_prefix,
+      seller_city,
+      seller_state
+    );
+    CREATE TABLE if not exists ogl(
+      geolocation_zip_code_prefix,
+      geolocation_lat,
+      geolocation_lng,
+      geolocation_city,
+      geolocation_state
+    );
+    CREATE TABLE if not exists oor(
+      order_id text primary key,
+      customer_id references ocu,
+      order_status,
+      order_purchase_timestamp,
+      order_approved_at,
+      order_delivered_carrier_date,
+      order_delivered_customer_date,
+      order_estimated_delivery_date
+    );
+    CREATE TABLE if not exists oit(
+      order_id references oor,
+      order_item_id,
+      product_id references opr,
+      seller_id references ose,
+      shipping_limit_date,
+      price,
+      freight_value,
+      primary key(order_id, order_item_id)
+    );
+    CREATE TABLE if not exists opa(
+      order_id references oor,
+      payment_sequential,
+      payment_type,
+      payment_installments,
+      payment_value,
+      primary key(order_id, payment_sequential)
+    );
+    CREATE TABLE if not exists ore(
+      review_id,
+      order_id references oor,
+      review_score,
+      review_comment_title,
+      review_comment_message,
+      review_creation_date,
+      review_answer_timestamp
+    );
+    create view vpr as
+      select * from opr left join opt on
+	opr.product_category_name = opt.product_category_name;
+    create view vall as select * from oor, oit, ocu, ose, vpr on
+      oor.order_id = oit.order_id and oor.customer_id = ocu.customer_id and
+      oit.product_id = vpr.product_id and oit.seller_id = ose.seller_id;
+
+    .import olist/olist_customers_dataset.csv ocu
+    .import olist/olist_products_dataset.csv opr
+    .import olist/product_category_name_translation.csv opt
+    .import olist/olist_sellers_dataset.csv ose
+    .import olist/olist_geolocation_dataset.csv ogl
+    .import olist/olist_orders_dataset.csv oor
+    .import olist/olist_order_items_dataset.csv oit
+    .import olist/olist_order_payments_dataset.csv opa
+    .import olist/olist_order_reviews_dataset.csv ore
