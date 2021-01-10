@@ -206,9 +206,12 @@
     CREATE VIEW VALL as select * from vorip, vorp, ocu, vors on
       vorip.order_id = vorp.order_id and vorip.customer_id = ocu.customer_id and
       vorip.order_id = vors.order_id;
-    CREATE VIEW vpay as select order_id, (price + freight_value) as pf,
-      payment_value as pv, payment_value/(price + freight_value) as pc from vall
-      group by order_id;
+    CREATE VIEW VO as select oor.order_id, sum(price + freight_value) as pf
+      from oor left join oit on oor.order_id = oit.order_id group by oor.order_id;
+    CREATE VIEW VP as select oor.order_id, sum(payment_value) as pv
+      from oor left join opa on oor.order_id = opa.order_id group by oor.order_id;
+    CREATE VIEW VOP as select vo.order_id, pf, pv, pv/pf as pc
+      from vo, vp on vo.order_id = vp.order_id;
 
     .import olist/olist_customers_dataset.csv ocu
     .import olist/olist_products_dataset.csv opr
