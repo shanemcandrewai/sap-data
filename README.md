@@ -199,8 +199,8 @@
       oor.order_id = oit.order_id;
     CREATE VIEW VORIP as select * from vori left join vpr on
       vori.product_id = vpr.product_id;
-    CREATE VIEW VORS as select * from vori left join vse on
-      vori.seller_id = vse.seller_id;
+    CREATE VIEW VORS as select * from vori left join ose on
+      vori.seller_id = ose.seller_id;
     CREATE VIEW VORP as select * from oor left join opa on
       oor.order_id = opa.order_id;
     CREATE VIEW VALL as select * from vorip, vorp, ocu, vors on
