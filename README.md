@@ -87,7 +87,7 @@
     CREATE VIEW if not exists VDATA as select * from vread
       where row between
         (select row+1 from vread where line like '%## Schema%' limit 1) and
-        (select row-1 from vread where line like '%## Create%' limit 1);
+        (select row-1 from vread where line like '%## Download%' limit 1);
     CREATE VIEW if not exists VSQL as select
       case substr(vdata.line, 1, 4)
         when '### ' then
@@ -185,18 +185,27 @@
       review_creation_date,
       review_answer_timestamp
     );
+    CREATE VIEW VCU as select * from ocu left join ogl on
+      customer_zip_code_prefix = geolocation_zip_code_prefix and
+      customer_city = geolocation_city and
+      customer_state = geolocation_state;
     CREATE VIEW VPR as select * from opr left join opt on
       opr.product_category_name = opt.product_category_name;
-    CREATE VIEW VPV as select oor.order_id, sum(payment_value) from oor
-      left join opa on oor.order_id = opa.order_id group by opa.order_id;
-    CREATE VIEW VALL as select * from oor, oit, ocu, ose, vpr, vpv on
-      oor.order_id = oit.order_id and oor.customer_id = ocu.customer_id and
-      oit.product_id = vpr.product_id and oit.seller_id = ose.seller_id and
-      oor.order_id = vpv.order_id;
-    CREATE VIEW VMON as select substr(order_purchase_timestamp, 1, 7) as mon,
-      ifnull(product_category_name_english, product_category_name || '__') as pcn,
-      order_status as os, round(sum(price),2) as pr, count(*) as cnt from vall
-      group by mon, pcn, os order by pcn, mon, os;
+    CREATE VIEW VSE as select * from ose left join ogl on
+      seller_zip_code_prefix = geolocation_zip_code_prefix and
+      seller_city = geolocation_city and
+      seller_state = geolocation_state;
+    CREATE VIEW VORI as select * from oor left join oit on
+      oor.order_id = oit.order_id;
+    CREATE VIEW VORIP as select * from vori left join vpr on
+      vori.product_id = vpr.product_id;
+    CREATE VIEW VORS as select * from vori left join vse on
+      vori.seller_id = vse.seller_id;
+    CREATE VIEW VORP as select * from oor left join opa on
+      oor.order_id = opa.order_id;
+    CREATE VIEW VALL as select * from vorip, vorp, ocu, vors, ore on
+      vorip.order_id = vorp.order_id and vorip.customer_id = ocu.customer_id and
+      vorip.order_id = vors.order_id and vorip.order_id = ore.order_id;
 
     .import olist/olist_customers_dataset.csv ocu
     .import olist/olist_products_dataset.csv opr
