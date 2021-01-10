@@ -189,12 +189,12 @@
       customer_zip_code_prefix = geolocation_zip_code_prefix and
       customer_city = geolocation_city and
       customer_state = geolocation_state;
-    CREATE VIEW VPR as select * from opr left join opt on
-      opr.product_category_name = opt.product_category_name;
     CREATE VIEW VSE as select * from ose left join ogl on
       seller_zip_code_prefix = geolocation_zip_code_prefix and
       seller_city = geolocation_city and
       seller_state = geolocation_state;
+    CREATE VIEW VPR as select * from opr left join opt on
+      opr.product_category_name = opt.product_category_name;
     CREATE VIEW VORI as select * from oor left join oit on
       oor.order_id = oit.order_id;
     CREATE VIEW VORIP as select * from vori left join vpr on
@@ -203,9 +203,9 @@
       vori.seller_id = vse.seller_id;
     CREATE VIEW VORP as select * from oor left join opa on
       oor.order_id = opa.order_id;
-    CREATE VIEW VALL as select * from vorip, vorp, ocu, vors, ore on
+    CREATE VIEW VALL as select * from vorip, vorp, ocu, vors on
       vorip.order_id = vorp.order_id and vorip.customer_id = ocu.customer_id and
-      vorip.order_id = vors.order_id and vorip.order_id = ore.order_id;
+      vorip.order_id = vors.order_id;
 
     .import olist/olist_customers_dataset.csv ocu
     .import olist/olist_products_dataset.csv opr
