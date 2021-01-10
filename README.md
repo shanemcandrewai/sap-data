@@ -206,6 +206,9 @@
     CREATE VIEW VALL as select * from vorip, vorp, ocu, vors on
       vorip.order_id = vorp.order_id and vorip.customer_id = ocu.customer_id and
       vorip.order_id = vors.order_id;
+    CREATE VIEW vpay as select order_id, (price + freight_value) as pf,
+      payment_value as pv, payment_value/(price + freight_value) as pc from vall
+      group by order_id;
 
     .import olist/olist_customers_dataset.csv ocu
     .import olist/olist_products_dataset.csv opr
